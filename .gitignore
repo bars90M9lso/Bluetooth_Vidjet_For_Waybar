@@ -1,0 +1,10 @@
+/build/
+/build-*/
+*.user
+*.user.*
+.qtcreator/
+CMakeUserPresets.json
+*.o
+*.a
+*.so
+*.out
