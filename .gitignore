@@ -8,3 +8,5 @@ CMakeUserPresets.json
 *.a
 *.so
 *.out
+
+.qmlls.ini
