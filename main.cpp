@@ -25,6 +25,8 @@ int main(int argc, char *argv[])
         &bluetoothManager
     );
 
+    bluetoothManager.updateDeviceList();
+
     engine.loadFromModule("BlVidject", "Main");
     return QGuiApplication::exec();
 }

@@ -23,7 +23,9 @@ qt_add_qml_module(appBlVidject
     URI BlVidject
     QML_FILES
         Main.qml
-        SOURCES bluetoothmanager.h bluetoothmanager.cpp
+        SOURCES
+            bluetoothmanager.h bluetoothmanager.cpp
+            BluetoothSubscription.h BluetoothSubscription.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
