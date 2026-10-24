@@ -1,5 +1,6 @@
 #include "bluetoothmanager.h"
 #include "BluetoothSubscription.h"
+#include "BluetoothAgent.h"
 #include "QDebug"
 
 #include <gio/gio.h>
@@ -20,6 +21,8 @@ BluetoothManager::BluetoothManager(QObject *parent): QAbstractListModel{parent}
     
     bluetoothEnabled = ReadBluetoothEnabled();
     qDebug() << "BluetoothManager: Состояние bluetoooh" << bluetoothEnabled;
+
+    bluetoothAgent = new BluetoothAgent(connection, this);
 
     bluetoothSubscription = new BluetoothSubscription(connection, this);
     QObject::connect
@@ -55,6 +58,9 @@ BluetoothManager::BluetoothManager(QObject *parent): QAbstractListModel{parent}
 
 BluetoothManager::~BluetoothManager()
 {
+    delete bluetoothAgent;
+    bluetoothAgent = nullptr;
+    
     delete bluetoothSubscription;
     bluetoothSubscription = nullptr;
 
@@ -104,6 +110,11 @@ GDBusConnection* BluetoothManager::ConnectToDBus()
     }
 
     return connection;
+}
+
+BluetoothAgent* BluetoothManager::GetBluetoothAgent() const
+{
+    return bluetoothAgent;
 }
 
 
@@ -489,8 +500,8 @@ bool BluetoothManager::StopDiscovery()
 
 
 // ============================================================================
-// Блок: подключение, отключение и сопряжение устройств
-// Block: connecting, disconnecting, and pairing devices
+// Блок: подключение, отключение, сопряжение и удаления устройств
+// Block: connecting, disconnecting, pairing and remove devices
 // ============================================================================
 void BluetoothManager::ConnectToDevice(const QString& objectPath)
 {
@@ -626,6 +637,45 @@ void BluetoothManager::PairDevice(const QString& objectPath)
             if (reply == nullptr)
             {
                 g_printerr("Ошибка подключения: %s\n", error ? error->message : "Неизвестная ошибка");
+                if (error != nullptr) g_error_free(error);
+
+                return;
+            }
+
+            g_variant_unref(reply);
+        },
+        nullptr
+    );
+}
+
+void BluetoothManager::RemoveDevice(const QString& objectPath)
+{
+    g_dbus_connection_call
+    (
+        this->connection,
+        "org.bluez",
+        "/org/bluez/hci0",
+        "org.bluez.Adapter1",   
+        "RemoveDevice",
+        g_variant_new("(o)", objectPath.toStdString().c_str()),
+        nullptr,
+        G_DBUS_CALL_FLAGS_NONE,
+        -1,
+        nullptr,
+        [](GObject* source, GAsyncResult* result, gpointer userData)
+        {
+            GError* error = nullptr;
+
+            GVariant* reply = g_dbus_connection_call_finish
+            (
+                G_DBUS_CONNECTION(source),
+                result,
+                &error
+            );
+
+            if (reply == nullptr)
+            {
+                g_printerr("Ошибка удаления: %s\n", error ? error->message : "Неизвестная ошибка");
                 if (error != nullptr) g_error_free(error);
 
                 return;

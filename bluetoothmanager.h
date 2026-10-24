@@ -2,6 +2,7 @@
 #define BLUETOOTHMANAGER_H
 
 #include "BluetoothSubscription.h"
+#include "BluetoothAgent.h"
 #include <gio/gio.h>
 #include <QObject>
 #include <QAbstractListModel>
@@ -42,6 +43,8 @@ class BluetoothManager : public QAbstractListModel
         bool IsDiscovery();
         void updateDeviceList();
 
+        BluetoothAgent* GetBluetoothAgent() const;
+
         // ===== Передача свойств Bluetooth =====
         // ===== Bluetooth property management =====
         Q_PROPERTY(bool bluetoothEnabled READ IsBluetoothEnabled NOTIFY bluetoothEnabledChanged)
@@ -56,6 +59,7 @@ class BluetoothManager : public QAbstractListModel
         // ===== Передача управления устройствами =====
         // ===== Device management =====
         Q_INVOKABLE void ConnectToDevice(const QString& objectPath);
+        Q_INVOKABLE void RemoveDevice(const QString& objectPath);
 
     private:
         // ===== Массив устройства =====
@@ -75,6 +79,7 @@ class BluetoothManager : public QAbstractListModel
         // ===== Internal variables =====
         GDBusConnection* connection = nullptr;
         BluetoothSubscription* bluetoothSubscription = nullptr;
+        BluetoothAgent* bluetoothAgent = nullptr;
         bool bluetoothEnabled = false;
         bool discoveryActive = false;
         QTimer discoveryTimer;

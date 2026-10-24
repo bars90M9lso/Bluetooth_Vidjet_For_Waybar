@@ -5,6 +5,7 @@ project(BlVidject VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package(LayerShellQt REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GIO REQUIRED IMPORTED_TARGET gio-2.0)
 
@@ -24,8 +25,9 @@ qt_add_qml_module(appBlVidject
     QML_FILES
         Main.qml
         SOURCES
-            bluetoothmanager.h bluetoothmanager.cpp
+            bluetoothmanager.h      bluetoothmanager.cpp
             BluetoothSubscription.h BluetoothSubscription.cpp
+            BluetoothAgent.h        BluetoothAgent.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -42,6 +44,7 @@ set_target_properties(appBlVidject PROPERTIES
 target_link_libraries(appBlVidject
     PRIVATE
         Qt6::Quick
+        LayerShellQt::Interface
         PkgConfig::GIO
 )
 
